@@ -1,0 +1,60 @@
+{
+  "name": "leaguelogin",
+  "version": "1.4.2",
+  "description": "Lost League Manager",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "ow-electron .",
+    "build": "ow-electron-builder"
+  },
+  "author": "Lostgames",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mauricekleindienst/lost-league-manager.git"
+  },
+  "dependencies": {
+    "eciejs": "^3.1.0",
+    "axios": "^1.13.2",
+    "electron-updater": "^6.7.3",
+    "js-yaml": "^4.1.1",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@overwolf/ow-electron": "^37.7.0",
+    "@overwolf/ow-electron-builder": "^26.0.12"
+  },
+  "overwolf": {
+    "packages": [
+      "gep",
+      "overlay"
+    ]
+  },
+  "build": {
+    "appId": "com.lostgames.leaguelogin",
+    "productName": "Lost League Manager",
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      "resources/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/renderer/assets/logo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "mauricekleindienst",
+        "repo": "lost-league-manager",
+        "releaseType": "release"
+      }
+    ]
+  }
+}
