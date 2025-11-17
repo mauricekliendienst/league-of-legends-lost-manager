@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Overlay</title>
+    <link rel="stylesheet" href="css/overlay.css">
+</head>
+<body>
+    <div class="ov-root" id="ovRoot">
+
+        <!-- Compact bar (always visible) -->
+        <div class="ov-bar" id="ovBar">
+            <div class="ov-drag" id="ovDrag" title="Drag to move">⠿</div>
+
+            <!-- Alive state -->
+            <div class="ov-live" id="ovLive">
+                <div class="ov-champ-wrap">
+                    <img class="ov-champ-icon" id="ovChampIcon" src="assets/logo.png"
+                         onerror="this.src='assets/logo.png'">
+                    <span class="ov-level-badge" id="ovLevel">1</span>
+                </div>
+                <div class="ov-stats-row">
+                    <span class="ov-kda" id="ovKda">0/0/0</span>
+                    <span class="ov-sep">·</span>
+                    <span id="ovCs">0 CS</span><span class="ov-csm" id="ovCsm"></span>
+                    <span class="ov-sep">·</span>
+                    <span class="ov-gold" id="ovGold">0g</span>
+                    <span class="ov-sep">·</span>
+                    <span id="ovTimer">00:00</span>
+                </div>
+            </div>
+
+            <!-- Dead state -->
+            <div class="ov-dead-bar" id="ovDeadBar" style="display:none">
+                <span class="ov-skull">💀</span>
+                <div class="ov-respawn-wrap">
+                    <span class="ov-respawn-label">RESPAWN IN</span>
+                    <span class="ov-respawn-count" id="ovRespawnCount">0</span>
+                    <span class="ov-respawn-label">s</span>
+                </div>
+                <span class="ov-dead-tip" id="ovDeadTip">Buy items!</span>
+            </div>
+
+            <button class="ov-toggle" id="ovToggle" title="Toggle player ranks">≡</button>
+            <button class="ov-toggle" id="ovBuildToggle" title="Toggle item builds">⊞</button>
+            <button class="ov-toggle" id="ovSettingsBtn" title="Overlay settings">⚙</button>
+        </div>
+
+        <!-- Ranked panel -->
+        <div class="ov-ranked" id="ovRanked" style="display:none">
+            <div id="ovRankedContent">
+                <div class="ov-rp-msg">Waiting for game data…</div>
+            </div>
+        </div>
+
+        <!-- Settings panel -->
+        <div class="ov-settings-panel" id="ovSettingsPanel" style="display:none">
+            <div class="ov-setting-row">
+                <span class="ov-setting-label">Opacity</span>
+                <div class="ov-slider-wrap">
+                    <input type="range" class="ov-slider" id="ovOpacitySlider" min="10" max="100" step="1" value="100">
+                    <span class="ov-setting-val" id="ovOpacityVal">100%</span>
+                </div>
+            </div>
+            <div class="ov-setting-row">
+                <span class="ov-setting-label">Hide key</span>
+                <select class="ov-select" id="ovHotkeySelect">
+                    <option value="Ctrl+Shift+H">Ctrl+Shift+H</option>
+                    <option value="Ctrl+Shift+X">Ctrl+Shift+X</option>
+                    <option value="Ctrl+Shift+O">Ctrl+Shift+O</option>
+                    <option value="F9">F9</option>
+                    <option value="F10">F10</option>
+                </select>
+            </div>
+            <div class="ov-setting-row">
+                <span class="ov-setting-label">Lock position</span>
+                <label class="ov-switch"><input type="checkbox" id="ovLockToggle"><span class="ov-switch-track"></span></label>
+            </div>
+            <div class="ov-setting-row">
+                <span class="ov-setting-label">Ranked panel</span>
+                <label class="ov-switch"><input type="checkbox" id="ovShowRankedToggle" checked><span class="ov-switch-track"></span></label>
+            </div>
+            <div class="ov-setting-row">
+                <span class="ov-setting-label">Build guide</span>
+                <label class="ov-switch"><input type="checkbox" id="ovShowBuildsToggle" checked><span class="ov-switch-track"></span></label>
+            </div>
+        </div>
+
+        <!-- Build panel -->
+        <div class="ov-builds" id="ovBuilds" style="display:none">
+            <div id="ovBuildsContent">
+                <div class="ov-rp-msg">Waiting for champion data…</div>
+            </div>
+        </div>
+
+    </div>
+    <script src="js/overlay.js"></script>
+</body>
+</html>

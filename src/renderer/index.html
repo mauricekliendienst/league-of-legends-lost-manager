@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-bottom"></div>
+    <div class="app-container dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo-area">
+                <img src="assets/logo.png" alt="Logo" class="logo">
+                <div class="title-group">
+                    <h1>Lost League</h1>
+                </div>
+            </div>
+
+            <div class="nav-links">
+                <button class="nav-btn active" data-view="accountsView">
+                    <span class="nav-icon"><i class="fas fa-th-large"></i></span> Dashboard
+                </button>
+                <button class="nav-btn" data-view="liveView" id="liveNavBtn">
+                    <span class="nav-icon"><i class="fas fa-circle-dot"></i></span> Live
+                    <span class="lcu-nav-dot" id="lcuNavDot"></span>
+                </button>
+                <button class="nav-btn" data-view="toolsView">
+                    <span class="nav-icon"><i class="fas fa-tools"></i></span> Tools
+                </button>
+                <button class="nav-btn" data-view="settingsView">
+                    <span class="nav-icon"><i class="fas fa-cog"></i></span> Settings
+                </button>
+            </div>
+
+            <div class="sidebar-bottom">
+                <button id="addAccountBtn" class="add-account-sidebar-btn">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+                <div id="appVersion" class="version-info">v1.0.2</div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Window Drag Area (Within Content) -->
+            <div class="window-control-bar">
+                <div class="drag-handle"></div>
+                <div class="window-controls">
+                    <button id="minimizeAppBtn" class="icon-btn"><i class="fas fa-minus"></i></button>
+                    <button id="closeAppBtn" class="icon-btn close-btn"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <!-- Dashboard Views -->
+            <div id="accountsView" class="view active">
+                <div class="view-header">
+                    <div class="view-title-row">
+                        <h2>Accounts</h2>
+                        <span id="accountCount" class="account-count"></span>
+                    </div>
+                    <div class="view-header-actions">
+                        <label class="auto-accept-switch">
+                            <input type="checkbox" id="autoAcceptToggle">
+                            <span class="slider"></span>
+                            <span class="label-text">Auto-Accept</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="accounts-toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="accountSearch" class="search-input" placeholder="Search by name, username, region…">
+                        <button id="searchClearBtn" class="search-clear" style="display:none"><i class="fas fa-times"></i></button>
+                    </div>
+                    <select id="accountSort" class="sort-select">
+                        <option value="default">Sort: Default</option>
+                        <option value="rank">By Rank</option>
+                        <option value="name">A → Z</option>
+                        <option value="region">By Region</option>
+                        <option value="lastUsed">Recently Used</option>
+                    </select>
+                </div>
+                <div id="accountsList" class="accounts-grid">
+                    <!-- Accounts injected here -->
+                </div>
+            </div>
+
+
+            <!-- Live View -->
+            <div id="liveView" class="view">
+                <div class="view-header">
+                    <h2>Live</h2>
+                    <span id="gameflowBadge" class="gameflow-badge gameflow-idle">Disconnected</span>
+                </div>
+
+                <!-- Disconnected state -->
+                <div id="lcuOffline" class="lcu-offline">
+                    <div class="empty-icon"><i class="fas fa-plug"></i></div>
+                    <p>League client not detected</p>
+                    <p class="lcu-offline-hint">Launch the League of Legends client to see your account overview.</p>
+                </div>
+
+                <!-- Connected state -->
+                <div id="lcuOnline" style="display:none">
+
+                    <!-- Context action bar (contextual, hidden by default) -->
+                    <div class="ov-action-bar" id="ovActionBar" style="display:none">
+                        <button id="ovDodgeBtn"  class="action-btn danger-btn"><i class="fas fa-sign-out-alt"></i> Dodge Queue</button>
+                        <button id="ovAcceptBtn" class="action-btn"><i class="fas fa-check"></i> Accept Match</button>
+                    </div>
+
+                    <!-- Tab bar -->
+                    <div class="ov-tab-bar">
+                        <button class="ov-tab active" data-tab="tabOverview">Overview</button>
+                        <button class="ov-tab"        data-tab="tabChampions">Champions</button>
+                        <button class="ov-tab"        data-tab="tabHistory">History</button>
+                    </div>
+
+                    <!-- Overview tab -->
+                    <div class="ov-panel active" id="tabOverview">
+                        <div class="summoner-banner">
+                            <div class="summoner-banner-icon-wrap">
+                                <img id="ovIcon" src="assets/logo.png" class="summoner-banner-icon">
+                                <span id="ovLevel" class="summoner-banner-level">1</span>
+                            </div>
+                            <div class="summoner-banner-info">
+                                <div id="ovName" class="summoner-banner-name">—</div>
+                                <div id="ovPrimaryRank" class="summoner-banner-rank rank-unranked">Unranked</div>
+                            </div>
+                            <div class="summoner-banner-spacer"></div>
+                            <div id="ovHonorBadge" class="honor-badge" style="display:none"></div>
+                        </div>
+                        <div class="ov-ranked-row">
+                            <div class="ov-ranked-card">
+                                <div class="ov-ranked-emblem" id="ovSoloEmblem"></div>
+                                <div class="ov-ranked-info">
+                                    <div class="ov-ranked-label">Ranked Solo / Duo</div>
+                                    <div id="ovSoloTier"   class="ov-ranked-tier rank-unranked">Unranked</div>
+                                    <div id="ovSoloLP"     class="ov-ranked-lp">—</div>
+                                    <div id="ovSoloRecord" class="ov-ranked-record">—</div>
+                                </div>
+                            </div>
+                            <div class="ov-ranked-card">
+                                <div class="ov-ranked-emblem" id="ovFlexEmblem"></div>
+                                <div class="ov-ranked-info">
+                                    <div class="ov-ranked-label">Ranked Flex</div>
+                                    <div id="ovFlexTier"   class="ov-ranked-tier rank-unranked">Unranked</div>
+                                    <div id="ovFlexLP"     class="ov-ranked-lp">—</div>
+                                    <div id="ovFlexRecord" class="ov-ranked-record">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Champions tab -->
+                    <div class="ov-panel" id="tabChampions">
+                        <div class="ov-section-label">Top Champions by Mastery</div>
+                        <div id="ovMastery" class="mastery-grid"></div>
+                    </div>
+
+                    <!-- History tab -->
+                    <div class="ov-panel" id="tabHistory">
+                        <div class="ov-section-label">Recent Games</div>
+                        <div id="ovMatches" class="ov-matches"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tools View -->
+            <div id="toolsView" class="view">
+                <div class="view-header">
+                    <h2>Tools</h2>
+                </div>
+                <div class="settings-content">
+                    <div class="setting-card">
+                        <div class="setting-icon"><i class="fas fa-heartbeat"></i></div>
+                        <div class="setting-info">
+                            <h3>Fix Client</h3>
+                            <p class="desc">Emergency kill for all Riot/League processes.</p>
+                            <button id="fixClientBtn" class="action-btn danger-btn">Kill Processes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settingsView" class="view">
+                <div class="view-header">
+                    <h2>Settings</h2>
+                </div>
+                <div class="settings-content">
+
+                    <!-- Overlay -->
+                    <div class="setting-card">
+                        <div class="setting-icon"><i class="fas fa-layer-group"></i></div>
+                        <div class="setting-info">
+                            <h3>Game Overlay</h3>
+                            <p class="desc">Configure the in-game overlay window shown while playing.</p>
+                            <div class="setting-row">
+                                <div class="setting-row-info">
+                                    <h4>Enable overlay</h4>
+                                    <p>Show the overlay window while a game is running</p>
+                                </div>
+                                <label class="setting-switch">
+                                    <input type="checkbox" id="overlayEnabledToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-row-info">
+                                    <h4>Player ranks panel</h4>
+                                    <p>Show the ≡ button to view all 10 players' ranked stats</p>
+                                </div>
+                                <label class="setting-switch">
+                                    <input type="checkbox" id="overlayShowRankedToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-row-info">
+                                    <h4>Item builds panel</h4>
+                                    <p>Show the ⊞ button for recommended item builds</p>
+                                </div>
+                                <label class="setting-switch">
+                                    <input type="checkbox" id="overlayShowBuildsToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row" style="border-bottom:none;padding-bottom:0">
+                                <div class="setting-row-info">
+                                    <h4>Reset overlay position</h4>
+                                    <p>Move the overlay back to the top-right corner</p>
+                                </div>
+                                <button id="resetOverlayPosBtn" class="action-btn">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Automation -->
+                    <div class="setting-card">
+                        <div class="setting-icon"><i class="fas fa-robot"></i></div>
+                        <div class="setting-info">
+                            <h3>Automation</h3>
+                            <p class="desc">Automatic actions performed in the League client.</p>
+                            <div class="setting-row">
+                                <div class="setting-row-info">
+                                    <h4>Auto-accept matches</h4>
+                                    <p>Automatically click Accept when a match is found</p>
+                                </div>
+                                <label class="setting-switch">
+                                    <input type="checkbox" id="autoAcceptSettingsToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row" style="border-bottom:none;padding-bottom:0">
+                                <div class="setting-row-info">
+                                    <h4>Minimize when game starts</h4>
+                                    <p>Hide the app to the tray when a match begins</p>
+                                </div>
+                                <label class="setting-switch">
+                                    <input type="checkbox" id="minimizeOnGameStartToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Behavior -->
+                    <div class="setting-card">
+                        <div class="setting-icon"><i class="fas fa-desktop"></i></div>
+                        <div class="setting-info">
+                            <h3>App Behavior</h3>
+                            <p class="desc">Control how Lost League Manager starts and runs.</p>
+                            <div class="setting-row">
+                                <div class="setting-row-info">
+                                    <h4>Start minimized</h4>
+                                    <p>Launch the app silently in the system tray on startup</p>
+                                </div>
+                                <label class="setting-switch">
+                                    <input type="checkbox" id="startMinimizedToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row" style="border-bottom:none;padding-bottom:0">
+                                <div class="setting-row-info">
+                                    <h4>Check for updates on startup</h4>
+                                    <p>Automatically look for new versions when the app opens</p>
+                                </div>
+                                <label class="setting-switch">
+                                    <input type="checkbox" id="checkUpdatesOnStartupToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- League Client -->
+                    <div class="setting-card">
+                        <div class="setting-icon"><i class="fas fa-folder-open"></i></div>
+                        <div class="setting-info">
+                            <h3>League Client</h3>
+                            <p class="desc">Path and display language for the League of Legends client.</p>
+                            <p id="lolPathDisplay" class="path-display">Loading...</p>
+                            <button id="changePathBtn" class="action-btn">Change Path</button>
+                            <div style="margin-top:18px">
+                                <div class="setting-row" style="border-bottom:none;padding-bottom:0;padding-top:0">
+                                    <div class="setting-row-info">
+                                        <h4>Client language</h4>
+                                        <p>Set the display language of the League client</p>
+                                    </div>
+                                    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+                                        <select id="localeSelect" class="form-control" style="width:150px">
+                                            <option value="en_US">English (US)</option>
+                                            <option value="de_DE">Deutsch</option>
+                                            <option value="es_ES">Español</option>
+                                            <option value="fr_FR">Français</option>
+                                            <option value="it_IT">Italiano</option>
+                                            <option value="pl_PL">Polski</option>
+                                            <option value="pt_BR">Português (BR)</option>
+                                            <option value="ru_RU">Русский</option>
+                                            <option value="tr_TR">Türkçe</option>
+                                            <option value="zh_CN">中文 (简体)</option>
+                                            <option value="ko_KR">한국어</option>
+                                            <option value="ja_JP">日本語</option>
+                                        </select>
+                                        <button id="changeLocaleBtn" class="action-btn">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Riot API Key -->
+                    <div class="setting-card">
+                        <div class="setting-icon"><i class="fas fa-key"></i></div>
+                        <div class="setting-info">
+                            <h3>Riot API Key</h3>
+                            <p class="desc">Used as a fallback for ranked stats when the League client is not running.</p>
+                            <div id="riotApiKeyNotice" class="api-key-notice">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                No API key set — ranked stats only work while the League client is open.
+                                Get a free key at <strong>developer.riotgames.com</strong>.
+                            </div>
+                            <div class="setting-row" style="border-bottom:none;padding-bottom:0;gap:10px">
+                                <input type="password" id="riotApiKeyInput" class="form-control api-key-input"
+                                    placeholder="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                    autocomplete="off" spellcheck="false">
+                                <button id="saveRiotApiKeyBtn" class="action-btn" style="flex-shrink:0">Save</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Updates -->
+                    <div class="setting-card">
+                        <div class="setting-icon"><i class="fas fa-sync-alt"></i></div>
+                        <div class="setting-info">
+                            <h3>Updates</h3>
+                            <p class="desc">Lost League Manager updates automatically in the background.</p>
+                            <button id="manualUpdateBtn" class="action-btn">Check for Updates</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Install Update Overlay -->
+    <div id="installOverlay" class="install-overlay">
+        <div class="install-bg-glow"></div>
+        <div class="install-content">
+            <img src="assets/logo.png" class="install-logo">
+            <div class="install-title">Lost League Manager</div>
+            <div class="install-version-line">Installing <span id="installOverlayVersion">v—</span></div>
+            <div class="install-rings">
+                <div class="install-ring install-ring-1"></div>
+                <div class="install-ring install-ring-2"></div>
+                <div class="install-ring install-ring-3"></div>
+            </div>
+            <div class="install-progress-track">
+                <div class="install-progress-fill"></div>
+            </div>
+            <div class="install-sub">The app will restart automatically</div>
+        </div>
+    </div>
+
+    <!-- Update Card -->
+    <div id="updateCard" class="update-card">
+        <div class="update-card-header">
+            <div class="update-card-icon">
+                <i class="fas fa-arrow-circle-up"></i>
+            </div>
+            <div class="update-card-title-group">
+                <div class="update-card-label">Update Available</div>
+                <div id="updateCardVersion" class="update-card-version">v—</div>
+            </div>
+            <button id="closeUpdateCard" class="update-card-close" title="Remind me later">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div id="updateProgressSection" class="update-progress-section">
+            <div class="update-status-row">
+                <span class="update-pulse-dot"></span>
+                <span>Downloading update…</span>
+                <span id="updateProgressPct" class="update-progress-pct">0%</span>
+            </div>
+            <div class="update-progress-track">
+                <div id="updateProgressBar" class="update-progress-bar"></div>
+            </div>
+        </div>
+
+        <div id="updateCardActions" class="update-card-actions">
+            <button id="installUpdateBtn" class="update-install-btn">
+                <i class="fas fa-download"></i> Install &amp; Restart
+            </button>
+            <button id="laterUpdateBtn" class="update-later-btn">Remind me later</button>
+        </div>
+    </div>
+
+    <!-- Dismissed update pill -->
+    <div id="updatePill" class="update-pill">
+        <span class="update-pill-dot"></span>
+        <span id="updatePillLabel">Update ready</span>
+    </div>
+
+    <!-- Launch Overlay -->
+    <div id="launchOverlay" class="launch-overlay">
+        <div class="launch-content">
+            <div class="launch-account-header">
+                <img id="launchAccIcon" src="assets/logo.png" class="launch-acc-icon">
+                <div class="launch-acc-details">
+                    <div id="launchAccLabel" class="launch-acc-label">Launching…</div>
+                    <div id="launchAccMeta" class="launch-acc-meta"></div>
+                </div>
+            </div>
+            <div class="launch-spinner"></div>
+            <div id="launchStatus" class="launch-status">Initializing...</div>
+            <div class="launch-progress-track">
+                <div id="launchProgress" class="launch-progress-bar"></div>
+            </div>
+            <div class="launch-btn-row">
+                <button id="retryLaunchBtn" class="retry-launch-btn" style="display:none">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+                <button id="cancelLaunchBtn" class="cancel-launch-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Account Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">New Account</h2>
+            <div class="form-scroll-area">
+                <div class="form-group">
+                    <label>Username (Login)</label>
+                    <input type="text" id="newUsername">
+                </div>
+                <div class="form-group">
+                    <label>Password (Leave empty to keep)</label>
+                    <input type="password" id="newPassword">
+                </div>
+                <div class="form-group">
+                    <label>Riot ID (Name#Tag)</label>
+                    <input type="text" id="newRiotId" placeholder="Faker#KR1">
+                </div>
+                <div class="form-group">
+                    <label>Region</label>
+                    <select id="newRegion">
+                        <option value="euw">EUW</option>
+                        <option value="eune">EUNE</option>
+                        <option value="na">NA</option>
+                        <option value="kr">KR</option>
+                        <option value="br">BR</option>
+                        <option value="tr">TR</option>
+                        <option value="ru">RU</option>
+                        <option value="lan">LAN</option>
+                        <option value="las">LAS</option>
+                        <option value="jp">JP</option>
+                        <option value="oce">OCE</option>
+                        <option value="sea">SEA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Label</label>
+                    <input type="text" id="newLabel">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Auto Pick (Name)</label>
+                        <input type="text" id="newAutoPick" placeholder="Yasuo">
+                    </div>
+                    <div class="form-group half">
+                        <label>Auto Ban (Name)</label>
+                        <input type="text" id="newAutoBan" placeholder="Teemo">
+                    </div>
+                </div>
+
+                <label class="checkbox-group">
+                    <input type="checkbox" id="autoSkinToggle">
+                    Auto Random Skin (Picks random skin)
+                </label>
+
+                <label class="checkbox-group">
+                    <input type="checkbox" id="minimizeOnLaunchToggle">
+                    Minimize app when launching this account
+                </label>
+
+                <label class="checkbox-group" style="opacity:0.45; cursor:not-allowed;" title="Not yet implemented">
+                    <input type="checkbox" id="autoSpellsToggle" disabled>
+                    Auto Spells (Coming Soon)
+                </label>
+
+                <!-- Auto Queue Section -->
+                <div class="modal-section">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="autoQueueToggle">
+                        Auto Queue (Start search after login)
+                    </label>
+
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="appearOfflineToggle">
+                        Appear Offline
+                    </label>
+
+                    <div class="form-group">
+                        <label>Queue Type</label>
+                        <select id="queueType">
+                            <option value="RANKED_SOLO">Ranked Solo/Duo</option>
+                            <option value="RANKED_FLEX">Ranked Flex</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Primary Role</label>
+                            <select id="primaryRole">
+                                <option value="">(None)</option>
+                                <option value="TOP">Top</option>
+                                <option value="JUNGLE">Jungle</option>
+                                <option value="MIDDLE">Mid</option>
+                                <option value="BOTTOM">Bot</option>
+                                <option value="UTILITY">Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group half">
+                            <label>Secondary Role</label>
+                            <select id="secondaryRole">
+                                <option value="">(None)</option>
+                                <option value="TOP">Top</option>
+                                <option value="JUNGLE">Jungle</option>
+                                <option value="MIDDLE">Mid</option>
+                                <option value="BOTTOM">Bot</option>
+                                <option value="UTILITY">Support</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Section -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Chat Messages <span class="modal-section-hint">(sent to team chat via keyboard)</span></div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>On Death</label>
+                            <input type="text" id="chatOnDeath" placeholder="e.g. my bad :(" maxlength="200">
+                        </div>
+                        <div class="form-group half">
+                            <label>On Kill</label>
+                            <input type="text" id="chatOnKill" placeholder="e.g. ez" maxlength="200">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>On Assist</label>
+                            <input type="text" id="chatOnAssist" placeholder="e.g. nice!" maxlength="200">
+                        </div>
+                        <div class="form-group half">
+                            <label>On Game Start</label>
+                            <input type="text" id="chatOnGameStart" placeholder="e.g. gl hf!" maxlength="200">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="newNotes" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="cancelAddBtn" class="secondary-btn">Cancel</button>
+                <button id="saveAccountBtn" class="primary-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal-content">
+            <!-- Header -->
+            <div class="profile-header">
+                <div class="profile-icon-wrap">
+                    <img id="profileIcon" src="assets/logo.png" class="profile-icon">
+                    <span id="profileLevel" class="profile-level-badge"></span>
+                </div>
+                <div class="profile-header-info">
+                    <div id="profileLabel"   class="profile-name"></div>
+                    <div id="profileMeta"    class="profile-meta"></div>
+                    <div id="profileLoading" class="profile-loading" style="display:none">
+                        <span class="profile-loading-dot"></span> Loading stats…
+                    </div>
+                </div>
+                <button id="closeProfileModal" class="icon-btn" style="align-self:flex-start">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Ranks -->
+            <div class="profile-ranks-row">
+                <div class="profile-rank-card">
+                    <div class="profile-rank-label">Ranked Solo / Duo</div>
+                    <div id="profileSoloEmblem" class="profile-rank-emblem"></div>
+                    <div id="profileSoloTier"   class="profile-rank-tier rank-unranked">Unranked</div>
+                    <div id="profileSoloLp"     class="profile-rank-lp"></div>
+                    <div id="profileSoloRecord" class="profile-rank-record"></div>
+                </div>
+                <div class="profile-rank-card">
+                    <div class="profile-rank-label">Ranked Flex</div>
+                    <div id="profileFlexEmblem" class="profile-rank-emblem"></div>
+                    <div id="profileFlexTier"   class="profile-rank-tier rank-unranked">Unranked</div>
+                    <div id="profileFlexLp"     class="profile-rank-lp"></div>
+                    <div id="profileFlexRecord" class="profile-rank-record"></div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div id="profileNotesWrap" class="profile-notes-wrap" style="display:none">
+                <div class="profile-notes-label">Notes</div>
+                <div id="profileNotes" class="profile-notes"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="profile-actions">
+                <button id="profileLaunchBtn" class="primary-btn" style="flex:1">
+                    <i class="fas fa-play"></i> Launch Account
+                </button>
+                <button id="profileEditBtn" class="secondary-btn">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-content">
+            <div id="confirmIcon" class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <h2 id="confirmTitle">Confirm Action</h2>
+            <p id="confirmMessage">Are you sure you want to proceed?</p>
+            <div class="modal-actions">
+                <button id="confirmCancelBtn" class="secondary-btn">Cancel</button>
+                <button id="confirmYesBtn" class="primary-btn danger">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
