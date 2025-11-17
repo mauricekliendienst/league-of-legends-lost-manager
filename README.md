@@ -17,7 +17,7 @@ To build the application locally:
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/lostsarius/lost-league-manager.git
+    git clone https://github.com/mauricekliendienst/lost-league-manager.git
     cd leaguelogin
     ```
 2.  **Install Dependencies**
